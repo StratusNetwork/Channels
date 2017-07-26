@@ -3,11 +3,13 @@ package com.github.rmsy.channels.listener;
 import com.github.rmsy.channels.Channel;
 import com.github.rmsy.channels.ChannelsPlugin;
 import com.google.common.base.Preconditions;
+import com.sk89q.minecraft.util.commands.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.plugin.Plugin;
 
 /** Listener for chat-related events. */
 public class ChatListener implements Listener {
@@ -32,10 +34,26 @@ public class ChatListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerChat(final PlayerChatEvent event) {
         Player sender = event.getPlayer();
-        Channel channel = this.plugin.getPlayerManager().getMembershipChannel(sender);
-        if(channel != null) {
+        String message = event.getMessage().trim();
+        if (message.indexOf('!') == 0) {
             event.setCancelled(true);
-            channel.sendMessage(event.getMessage(), sender);
+            Channel globalChannel = this.plugin.getGlobalChannel();
+            if (message.length() > 1) {
+                globalChannel.sendMessage(message.substring(1, message.length()).trim(), sender);
+            } else {
+                if (this.plugin.getPlayerManager().getMembershipChannel(sender).equals(globalChannel)) {
+                    sender.sendMessage(ChannelsPlugin.get().getConfig().getString("global-chat.switch.no-change-msg", "Global chat is already your default channel."));
+                } else {
+                    sender.sendMessage(ChatColor.YELLOW + ChannelsPlugin.get().getConfig().getString("global-chat.switch.success-msg", "Changed default channel to global chat."));
+                    this.plugin.getPlayerManager().setMembershipChannel(sender, globalChannel);
+                }
+            }
+        } else {
+            Channel channel = this.plugin.getPlayerManager().getMembershipChannel(sender);
+            if (channel != null) {
+                event.setCancelled(true);
+                channel.sendMessage(message, sender);
+            }
         }
     }
 }
