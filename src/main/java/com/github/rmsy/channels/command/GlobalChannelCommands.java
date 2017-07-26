@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 public final class GlobalChannelCommands {
 
     @Command(
-            aliases = {"g"},
+            aliases = {"g", "shout"},
             desc = "Sends a message to the global channel (or sets the global channel to your default channel).",
             max = -1,
             min = 0,
