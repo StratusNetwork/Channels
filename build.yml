@@ -4,16 +4,8 @@ steps:
       - -mq
       - cp
       - -r
-      - .
-      - gs://artifacts.$PROJECT_ID.appspot.com/artifacts/$BRANCH_NAME/$REPO_NAME
-  - name: gcr.io/cloud-builders/gsutil
-    args:
-      - -mq
-      - cp
-      - -r
       - gs://artifacts.$PROJECT_ID.appspot.com/artifacts/$BRANCH_NAME/.m2
       - .
-    wait_for: ['-']
   - name: gcr.io/cloud-builders/mvn
     args:
       - install
@@ -23,6 +15,6 @@ steps:
     args:
       - -mq
       - cp
-      - -rn
+      - -r
       - .m2
       - gs://artifacts.$PROJECT_ID.appspot.com/artifacts/$BRANCH_NAME
